@@ -7,11 +7,11 @@ yourself.
 """
 
 from PokerRL.game.InteractiveGame import InteractiveGame
-from PokerRL.game.games import DiscretizedNLHoldem
+from PokerRL.game.games import LimitHoldem
 
 if __name__ == '__main__':
-    game_cls = DiscretizedNLHoldem
-    args = game_cls.ARGS_CLS(n_seats=3,
+    game_cls = LimitHoldem
+    args = game_cls.ARGS_CLS(n_seats=2,
                              bet_sizes_list_as_frac_of_pot=[
                                  0.2,
                                  0.5,
@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     game = InteractiveGame(env_cls=game_cls,
                            env_args=args,
-                           seats_human_plays_list=[0, 1, 2],
+                           seats_human_plays_list=[0, 1],
                            )
 
     game.start_to_play()

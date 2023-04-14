@@ -277,3 +277,6 @@ $RECYCLE.BIN/
 /data
 
 # End of https://www.gitignore.io/api/linux,python,windows,pycharm,pycharm+all,pycharm+iml
+
+#Ignore venv
+poker_env
