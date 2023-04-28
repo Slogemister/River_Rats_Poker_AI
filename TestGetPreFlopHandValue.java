@@ -2,7 +2,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class GetPreFlopHandValueTests {
+public class TestGetPreFlopHandValue {
     // getPreFlopHandValue()
     @Test
     public void expectValueOfZeroFor75o() {

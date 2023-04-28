@@ -2,7 +2,7 @@
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-public class PocketCardsToHandCombinationTests {
+public class TestPocketCardsToHandCombination {
     
     // pocketCardsToHandCombination tests
     // Pairs
