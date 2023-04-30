@@ -54,6 +54,10 @@ public class RulesBasedAgent extends Player {
     private int lastRound;
     private int nextIndex;
 
+    private String[] topBestHandRange = {"straight flush", "four of a kind", "full house", "flush", "straight"};
+    private String[] mediumBestHandRange = {"three of a kind", "two of a kind"};
+    private String[] lowerBestHandRange = {"one pair", "no pair"};
+
     public RulesBasedAgent(int num) {
         this.num = num;
         this.lastRound = 1;
@@ -191,20 +195,112 @@ public class RulesBasedAgent extends Player {
             }
         }
         // FLOP through RIVER:
+        else {
             // Determine the BestHand you can make with your cards
-            // WHILE the current round has not ended:
-                // IF current hand is the Nuts-range (straight-flush through trips):
-                    // BET  or call (betting limit reached)
-                    // Do this through the entire round (even if someone else raises after you)
-                // ELSE IF current hand is the medium-range (high/medium two pairs, over pair, top pair with high kicker):
-                    // Choose to Call 
-                    // If facing a bet:
-                        // Choose to call (bluff-catch) or fold
-                // ELSE (current hand is in the lower-range: low/made two pairs, top pair with low kicker, lone pairs, nothing):
-                    // Choose to Call or Raise/Bet
-                    // If facing a bet:
-                        // Prefer to FOLD, but occasionally CALL and rarely Re-Raise
+            BestHand currentBestHand = EstherTools.getBestHand(data.getPocket(), data.getBoard());
 
+            boolean isInTopRange = false;
+            for (int i = 0; i < topBestHandRange.length; i++) {
+                if (currentBestHand.getComboString() == topBestHandRange[i]) {
+                    isInTopRange = true;
+                }
+            }
+            // IF current hand is the Nuts-range (straight-flush through straight):
+            if (isInTopRange) {
+                // BET  or call (betting limit reached)
+                if (data.getValidActions().contains("raise")) {
+                    System.out.println("Agent raises" + "\n");
+                    return "raise";
+                } else {
+                    if (data.getValidActions().contains("bet")) {
+                        System.out.println("Agent bets" + "\n");
+                        return "bet";
+                    } else {
+                        System.out.println("Agent calls" + "\n");
+                        return "call";
+                    }
+                }
+                // Do this through the entire round (even if someone else raises after you)
+            }
+
+            boolean isInMidRange = false;
+            for (int i = 0; i < mediumBestHandRange.length; i++) {
+                if (currentBestHand.getComboString() == mediumBestHandRange[i]) {
+                    isInMidRange = true;
+                }
+            }
+            if (isInMidRange) {
+                 // ELSE IF current hand is the medium-range (three-of-a-kind and two pairs):
+                 if (data.getValidActions().contains("check")) {
+                    // Choose to Call 
+                    System.out.println("Agent checks " + "\n");
+                    return "check";
+                } else {
+                    // If facing a bet:
+                    // Choose to call (bluff-catch) or fold
+                    // Default values for mid-range, call 60%, fold 40%
+                    double callOrFold = Math.random();
+                    if (callOrFold > 0.4) {
+                        System.out.println("Agent calls" + "\n");
+                        return "call";
+                    } else {
+                        System.out.println("Agent folds" + "\n");
+                        return "fold";
+                    }
+                }
+            }
+
+            boolean isInLowRange = false;
+            for (int i = 0; i < lowerBestHandRange.length; i++) {
+                if (currentBestHand.getComboString() == lowerBestHandRange[i]) {
+                    isInLowRange = true;
+                }
+            }
+            if (isInLowRange) {
+                // ELSE (current hand is in the lower-range: low/made two pairs, top pair with low kicker, lone pairs, nothing):
+                if (data.getValidActions().contains("check")) {
+                    // If no one has bet, prefer to call but sometimes raise
+                    // Default values will be call 90%, bet 10%
+                    double callOrBet = Math.random();
+                    if (callOrBet > 0.1) {
+                        System.out.println("Agent calls \n");
+                        return "call";
+                    } else {
+                        System.out.println("Agent bets \n");
+                        return "bet";
+                    }
+                } else {
+                    // If facing a bet, prefer to fold, 
+                    // but sometimes call and rarely re-raise (if able)
+                    double foldCallOrRaise = Math.random();
+                    if (data.getValidActions().contains("raise")) {
+                        // If raising is possible, default values are
+                        // 60% fold, 30% call, 10% raise
+                        if (foldCallOrRaise > 0.4) {
+                            System.out.println("Agent folds \n");
+                            return "fold";
+                        } else if (foldCallOrRaise <= 0.4 && foldCallOrRaise > 0.1) {
+                            System.out.println("Agent calls \n");
+                            return "call";
+                        } else {
+                            System.out.println("Agent raises \n");
+                            return "raise";
+                        }
+                    } else {
+                        // Betting limit reached, default values are
+                        // 60% fold, 40% call
+                        if (foldCallOrRaise > 0.4) {
+                            System.out.println("Agent folds \n");
+                            return "fold";
+                        } else {
+                            System.out.println("Agent calls \n");
+                            return "call";
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("Error in execution, fold by default \n");
         return "fold";
     }
 
