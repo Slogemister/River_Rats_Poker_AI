@@ -1,6 +1,8 @@
+import java.util.ArrayList;
+
 public class RulesBasedAgent extends Player {
 
-    private final int num;
+    private int num = 0;
 
     private final String[][] CARDCOMBOARRAY = 
         {
@@ -49,9 +51,23 @@ public class RulesBasedAgent extends Player {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     };
 
+    private int lastRound;
+    private int nextIndex;
 
     public RulesBasedAgent(int num) {
         this.num = num;
+        this.lastRound = 1;
+        this.nextIndex = 0;
+    }
+
+    @Override
+    public void newHand(int hand, int[] bank) {
+        System.out.println("Players start this round with bank totals of:");
+        for (int x = 0; x < bank.length; x++) {
+            System.out.println((x + 1) + " has " + bank[x]);
+        }
+        lastRound = 1;
+        nextIndex = 0;
     }
 
     @Override
@@ -61,29 +77,119 @@ public class RulesBasedAgent extends Player {
 
     @Override
     public String getAction(TableData data) {
+        int currentRound = data.getBettingRound();
+
+        // Match starting implementation of AgentHumanCommandLine:
+        if (lastRound < currentRound) {
+            ArrayList<String> lastRoundActions = data.getHandActions(lastRound);
+            System.out.println();
+
+            for (int x = nextIndex; x < lastRoundActions.size(); x++) {
+                System.out.println(lastRoundActions.get(x));
+            }
+            System.out.println();
+            System.out.println("Starting next round of betting.");
+            nextIndex = 0;
+            lastRound = currentRound;
+        }
+
+        ArrayList<String> thisRoundActions = data.getHandActions(currentRound);
+        
+        System.out.println();
+        int len = thisRoundActions.size();
+
+        for (int x = nextIndex; x < thisRoundActions.size(); x++) {
+            System.out.println(thisRoundActions.get(x));
+        }
+
+        nextIndex = thisRoundActions.size() + 1;
+
+        System.out.println();
+
         // PRE-FLOP: (IF current round is PRE-FLOP):
+        if (currentRound == 1) {
             // FIND card combination in the hand range
+            System.out.println("Agent's pocket cards are: ");
+            System.out.print(EstherTools.intCardToStringCard(data.getPocket()[0]) + " ");
+            System.out.println(EstherTools.intCardToStringCard(data.getPocket()[1]) + " ");
+            System.out.println();
+
             String cardCombo = pocketCardsToHandCombination(
                 data.getPocket()[0], data.getPocket()[1]
             );
-            // FIND hand value in terms of agent's own range
+            System.out.println("Card combination from pocket cards: " + cardCombo);
+            System.out.println();
+
+                // FIND hand value in terms of agent's own range
             int preFlopHandValue = getPreFlopHandValue(
                 data.getPocket()[0], data.getPocket()[1]
             );
+            System.out.println("Hand strength value: " + preFlopHandValue);
+            System.out.println();
             
             // IF current pocket cards aren't in the acceptable range
             if (preFlopHandValue == 0) {
+                // FOLD
+                System.out.println("Agent folds " + "\n");
                 return "fold";
             }
-                // FOLD
-            // ELSE:
-            // WHILE the flop has not been seen:
-                // Choose to either limp in (CALL/CHECK) or raise
-                // IF (someone has bet before or after your turn):
-                    // See if cards are in the top portion of your range
-                        // If Cards are in top 50%, prefer to call bet
-                        // If Cards are in top 25%, prefer to raise (if able)
-                        // FOLD off it bet is big (lower 50% of range)
+            // If Cards are in top of range (3), raise all the time, else call.
+            else if (preFlopHandValue == 3) {
+                // If betting limit isn't reached, raise
+                if (data.getValidActions().contains("raise")) {
+                    System.out.println("Agent raises " + "\n");
+                    return "raise";
+                } else {
+                    System.out.println("Agent calls" + "\n");
+                    return "call";
+                }
+            }
+            // If Cards are in middle of range:
+            else if (preFlopHandValue == 2) {
+                // If no one has raised, bet
+                if (data.getValidActions().contains("bet")) {
+                    System.out.println("Agent raises" + "\n");
+                    return "bet";
+                }
+                // Else someone has raised before the agent
+                else {
+                    if (data.getValidActions().contains("raise")) {
+                        // Randomly decide to raise bet or call
+                        // Starting weights will be a 50% bet, 50% call
+                        double raiseOrCall = Math.random();
+                        if (raiseOrCall > 0.5) {
+                            System.out.println("Agent raises" + "\n");
+                            return "raise";
+                        } else {
+                            System.out.println("Agent calls" + "\n");
+                            return "call";
+                        }
+                    }
+                    // Betting limit reached, call bet
+                    System.out.println("Agent calls" + "\n");
+                    return "call";
+                }
+            }
+            // Lower portion of range, prefer to fold, else call
+            else {
+                // If player raised before agent acts, decide to call or fold
+                if (data.getValidActions().contains("raise")) {
+                    double callOrFold = Math.random();
+                    // Default weighting is 50% call, 50% fold
+                    if (callOrFold > 0.5) {
+                        System.out.println("Agent calls" + "\n");
+                        return "call";
+                    } else {
+                        System.out.println("Agent folds" + "\n");
+                        return "fold";
+                    }
+                } else {
+                    // If first to act, initially bet
+                    System.out.println("Agent raises" + "\n");
+                    return "raise";
+                }
+            }
+        }
         // FLOP through RIVER:
             // Determine the BestHand you can make with your cards
             // WHILE the current round has not ended:
