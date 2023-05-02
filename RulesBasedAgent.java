@@ -140,10 +140,15 @@ public class RulesBasedAgent extends Player {
             // If Cards are in top of range (3), raise all the time, else call.
             else if (preFlopHandValue == 3) {
                 // If betting limit isn't reached, raise
-                if (data.getValidActions().contains("raise")) {
+                if (data.getValidActions().contains("bet")) {
+                    System.out.println("Agent bets " + '\n');
+                    return "bet";
+                }
+                else if (data.getValidActions().contains("raise")) {
                     System.out.println("Agent raises " + "\n");
                     return "raise";
-                } else {
+                }
+                else {
                     System.out.println("Agent calls" + "\n");
                     return "call";
                 }
@@ -170,8 +175,8 @@ public class RulesBasedAgent extends Player {
                         }
                     }
                     // Betting limit reached, call bet
-                    System.out.println("Agent calls" + "\n");
-                    return "call";
+                    System.out.println("Agent checks" + "\n");
+                    return "check";
                 }
             }
             // Lower portion of range, prefer to fold, else call
@@ -207,15 +212,17 @@ public class RulesBasedAgent extends Player {
             }
             // IF current hand is the Nuts-range (straight-flush through straight):
             if (isInTopRange) {
-                // BET  or call (betting limit reached)
+                // Reraise if betting limit isn't reached
                 if (data.getValidActions().contains("raise")) {
                     System.out.println("Agent raises" + "\n");
                     return "raise";
                 } else {
+                    // if first to act, bet first
                     if (data.getValidActions().contains("bet")) {
                         System.out.println("Agent bets" + "\n");
                         return "bet";
                     } else {
+                        // betting limit reached, call
                         System.out.println("Agent calls" + "\n");
                         return "call";
                     }
@@ -263,8 +270,8 @@ public class RulesBasedAgent extends Player {
                     // Default values will be call 90%, bet 10%
                     double callOrBet = Math.random();
                     if (callOrBet > 0.1) {
-                        System.out.println("Agent calls \n");
-                        return "call";
+                        System.out.println("Agent checks \n");
+                        return "check";
                     } else {
                         System.out.println("Agent bets \n");
                         return "bet";

@@ -36,7 +36,7 @@ public class ESTHER {
          //players[5] = new Morris();
          
          System.out.println("You will be player #6");
-         players[5] = new AgentHumanCommandLine();
+         players[5] = new RulesBasedAgent(1);
 
          
         if (mode == 1) {
