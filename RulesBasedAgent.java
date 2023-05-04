@@ -55,7 +55,7 @@ public class RulesBasedAgent extends Player {
     private int nextIndex;
 
     private String[] topBestHandRange = {"straight flush", "four of a kind", "full house", "flush", "straight"};
-    private String[] mediumBestHandRange = {"three of a kind", "two of a kind"};
+    private String[] mediumBestHandRange = {"three of a kind", "two pair"};
     private String[] lowerBestHandRange = {"one pair", "no pair"};
 
     public RulesBasedAgent(int num) {
@@ -130,6 +130,13 @@ public class RulesBasedAgent extends Player {
             );
             System.out.println("Hand strength value: " + preFlopHandValue);
             System.out.println();
+
+            System.out.println("The board shows");
+            for (int card : data.getBoard()) {
+                System.out.print(EstherTools.intCardToStringCard(card) + " ");
+            }
+            System.out.println(" ");
+
             
             // IF current pocket cards aren't in the acceptable range
             if (preFlopHandValue == 0) {
@@ -144,7 +151,7 @@ public class RulesBasedAgent extends Player {
                     System.out.println("Agent bets " + '\n');
                     return "bet";
                 }
-                else if (data.getValidActions().contains("call")) {
+                else if (data.getValidActions().contains("raise")) {
                     System.out.println("Agent raises " + "\n");
                     return "raise";
                 }
@@ -156,27 +163,22 @@ public class RulesBasedAgent extends Player {
             // If Cards are in middle of range:
             else if (preFlopHandValue == 2) {
                 // If no one has raised, bet
-                if (data.getValidActions().contains("check")) {
-                    System.out.println("Agent raises" + "\n");
+                if (data.getValidActions().contains("bet")) {
+                    System.out.println("Agent bets" + "\n");
                     return "bet";
                 }
                 // Else someone has raised before the agent
                 else {
-                    if (data.getValidActions().contains("call")) {
-                        // Randomly decide to raise bet or call
-                        // Starting weights will be a 50% bet, 50% call
-                        double raiseOrCall = Math.random();
-                        if (raiseOrCall > 0.5) {
-                            System.out.println("Agent raises" + "\n");
-                            return "raise";
-                        } else {
-                            System.out.println("Agent calls" + "\n");
-                            return "call";
-                        }
+                    // Randomly decide to raise bet or call
+                    // Starting weights will be a 50% bet, 50% call
+                    double raiseOrCall = Math.random();
+                    if (raiseOrCall > 0.5 && data.getValidActions().contains("raise")) {
+                        System.out.println("Agent raises" + "\n");
+                        return "raise";
+                    } else {
+                        System.out.println("Agent calls" + "\n");
+                        return "call";
                     }
-                    // Betting limit reached, call bet
-                    System.out.println("Agent checks" + "\n");
-                    return "check";
                 }
             }
             // Lower portion of range, prefer to fold, else call
@@ -194,13 +196,19 @@ public class RulesBasedAgent extends Player {
                     }
                 } else {
                     // If first to act, initially bet
-                    System.out.println("Agent raises" + "\n");
-                    return "raise";
+                    System.out.println("Agent bets" + "\n");
+                    return "bet";
                 }
             }
         }
         // FLOP through RIVER:
         else {
+            System.out.println("The board shows");
+            for (int card : data.getBoard()) {
+                System.out.print(EstherTools.intCardToStringCard(card) + " ");
+            }
+            System.out.println(" ");
+
             // Determine the BestHand you can make with your cards
             BestHand currentBestHand = EstherTools.getBestHand(data.getPocket(), data.getBoard());
 
@@ -213,19 +221,17 @@ public class RulesBasedAgent extends Player {
             // IF current hand is the Nuts-range (straight-flush through straight):
             if (isInTopRange) {
                 // Reraise if betting limit isn't reached
-                if (data.getValidActions().contains("call")) {
+                if (data.getValidActions().contains("raise")) {
                     System.out.println("Agent raises" + "\n");
                     return "raise";
+                // if first to act, bet first
+                } else if (data.getValidActions().contains("bet")) {
+                    System.out.println("Agent bets" + "\n");
+                    return "bet";
                 } else {
-                    // if first to act, bet first
-                    if (data.getValidActions().contains("check")) {
-                        System.out.println("Agent bets" + "\n");
-                        return "bet";
-                    } else {
-                        // betting limit reached, call
-                        System.out.println("Agent calls" + "\n");
-                        return "call";
-                    }
+                    // betting limit reached, call
+                    System.out.println("Agent calls" + "\n");
+                    return "call";
                 }
                 // Do this through the entire round (even if someone else raises after you)
             }
@@ -242,7 +248,7 @@ public class RulesBasedAgent extends Player {
                     // Choose to Call 
                     System.out.println("Agent checks " + "\n");
                     return "check";
-                } else {
+                } else if (data.getValidActions().contains("call")) {
                     // If facing a bet:
                     // Choose to call (bluff-catch) or fold
                     // Default values for mid-range, call 60%, fold 40%
