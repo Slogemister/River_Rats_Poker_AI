@@ -140,11 +140,11 @@ public class RulesBasedAgent extends Player {
             // If Cards are in top of range (3), raise all the time, else call.
             else if (preFlopHandValue == 3) {
                 // If betting limit isn't reached, raise
-                if (data.getValidActions().contains("bet")) {
+                if (data.getValidActions().contains("check")) {
                     System.out.println("Agent bets " + '\n');
                     return "bet";
                 }
-                else if (data.getValidActions().contains("raise")) {
+                else if (data.getValidActions().contains("call")) {
                     System.out.println("Agent raises " + "\n");
                     return "raise";
                 }
@@ -156,13 +156,13 @@ public class RulesBasedAgent extends Player {
             // If Cards are in middle of range:
             else if (preFlopHandValue == 2) {
                 // If no one has raised, bet
-                if (data.getValidActions().contains("bet")) {
+                if (data.getValidActions().contains("check")) {
                     System.out.println("Agent raises" + "\n");
                     return "bet";
                 }
                 // Else someone has raised before the agent
                 else {
-                    if (data.getValidActions().contains("raise")) {
+                    if (data.getValidActions().contains("call")) {
                         // Randomly decide to raise bet or call
                         // Starting weights will be a 50% bet, 50% call
                         double raiseOrCall = Math.random();
@@ -182,7 +182,7 @@ public class RulesBasedAgent extends Player {
             // Lower portion of range, prefer to fold, else call
             else {
                 // If player raised before agent acts, decide to call or fold
-                if (data.getValidActions().contains("raise")) {
+                if (data.getValidActions().contains("call")) {
                     double callOrFold = Math.random();
                     // Default weighting is 50% call, 50% fold
                     if (callOrFold > 0.5) {
@@ -213,12 +213,12 @@ public class RulesBasedAgent extends Player {
             // IF current hand is the Nuts-range (straight-flush through straight):
             if (isInTopRange) {
                 // Reraise if betting limit isn't reached
-                if (data.getValidActions().contains("raise")) {
+                if (data.getValidActions().contains("call")) {
                     System.out.println("Agent raises" + "\n");
                     return "raise";
                 } else {
                     // if first to act, bet first
-                    if (data.getValidActions().contains("bet")) {
+                    if (data.getValidActions().contains("check")) {
                         System.out.println("Agent bets" + "\n");
                         return "bet";
                     } else {
@@ -280,7 +280,7 @@ public class RulesBasedAgent extends Player {
                     // If facing a bet, prefer to fold, 
                     // but sometimes call and rarely re-raise (if able)
                     double foldCallOrRaise = Math.random();
-                    if (data.getValidActions().contains("raise")) {
+                    if (data.getValidActions().contains("call")) {
                         // If raising is possible, default values are
                         // 60% fold, 30% call, 10% raise
                         if (foldCallOrRaise > 0.4) {
