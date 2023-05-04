@@ -1,0 +1,22 @@
+During the betting round:
+
+GET a list of hand actions (getHandActions) of the current round, leading up to point of the current player acting called playerActions.
+
+CREATE an initial list of active players in the hand (whosIn) called activePlayers
+CREATE an initial list chip values that each player has put in the pot called playerValues
+
+FROM each item of playerActions:
+	READ the current list item to determine...
+		WHAT player is this 
+		WHAT action did the player do
+	
+	IF the current player is in activePlayers:
+		IF the player's action is to FOLD:
+			UPDATE this player's status to not be included in upper if statement
+		ELSE: (player called/bet)
+			FIND the current table pot (getTablePot)
+			UPDATE value of money that player has put in to the pot so far
+			
+	ELSE: 
+		(Do nothing for this player, only update chip values for active players)
+		(Shouldn't reach this statement, but if it does, CONTINUE to the next list item)
