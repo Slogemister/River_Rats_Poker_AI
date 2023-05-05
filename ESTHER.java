@@ -33,10 +33,12 @@ public class ESTHER {
          players[2] = new AgentRandomPlayer(2);
          players[3] = new AgentAlwaysRaise(1);
          players[4] = new AgentRandomPlayer(3);
+         players[5] = new NNAgent(1);
+
          //players[5] = new Morris();
          
          System.out.println("You will be player #6");
-         players[5] = new RulesBasedAgent(1);
+         //players[5] = new AgentHumanCommandLine();
 
          
         if (mode == 1) {
