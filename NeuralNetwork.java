@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -12,16 +13,47 @@ public class NeuralNetwork {
     double l_rate=0.01;
     int i, h, o;
 
+    int row = 0;
+    int column = 0;
+    int oldRow = 0;
+    int oldColumn = 0;
+    int bestScore = -100000;
+
+    double oldWeight = 0;
+
+    Matrix oldProperty;
+
+    Matrix bestWeights_ih, bestWeights_ho, bestBias_h, bestBias_o;
+
+
     public NeuralNetwork(int i, int h, int o){
+        // creates a neural network with specified neurons 
+        // in the input, hidden, and output layers.
         this.h = h;
         this.i = i;
         this.o = o;
 
         weights_ih = new Matrix(h, i);
         weights_ho = new Matrix(o, h);
-
         bias_h = new Matrix(h, 1);
         bias_o = new Matrix(o, 1);
+
+        bestWeights_ho = weights_ho;
+        bestWeights_ih = weights_ih;
+        bestBias_h = bias_h;
+        bestBias_o = bias_o;
+    }
+    public NeuralNetwork(Matrix weights_Ih, Matrix weights_Ho, Matrix bias_H, Matrix bias_O){
+        // creates a neural network bsed on given matrices
+        weights_ih = weights_Ih;
+        weights_ho = weights_Ho;
+        bias_h = bias_H;
+        bias_o = bias_O;
+
+        bestWeights_ho = weights_ho;
+        bestWeights_ih = weights_ih;
+        bestBias_h = bias_h;
+        bestBias_o = bias_o;
     }
 
     public List<Double> predict(double [] X){
@@ -37,68 +69,13 @@ public class NeuralNetwork {
         Matrix output = Matrix.multiply(weights_ho, hidden);
         output.add(bias_o);
         output.sigmoid();
-        
-
-        //return output.toArray();
-        System.out.println("Input->Hidden: " + weights_ih.toArray());
-        System.out.println("Hidden->Output: " + weights_ho.toArray());
-        System.out.println("Hidden Bias: " + bias_h.toArray());
-        System.out.println();
-        System.out.println("OutputArray: " + output.toArray());
 
         return output.toArray();
 
     }
 
-    public void train(double [] X, double [] Y){
-        // needs to be updated to enable Reinforcement learning. To do this 
-        // base how well the agent based on how well his score is at the end 
-        // of each hand played. 
-        // Possibly add in mutation to this as well?
+    public ArrayList<Matrix> trainReinforcement(int score){
 
-        Matrix input = Matrix.fromArray(X);
-        Matrix hidden = Matrix.multiply(weights_ih, input);
-        hidden.add(bias_h);
-        hidden.sigmoid();
-
-        Matrix output = Matrix.multiply(weights_ho, hidden);
-        output.add(bias_o);
-        output.sigmoid();
-
-        Matrix target = Matrix.fromArray(Y);
-        Matrix error = Matrix.subtract(target, output);
-        Matrix gradient = output.dsigmoid();
-        gradient.multiply(error);
-        gradient.multiply(l_rate);
-
-        Matrix hidden_T = Matrix.transpose(hidden);
-        Matrix who_delta = Matrix.multiply(gradient, hidden_T);
-
-        weights_ho.add(who_delta);
-        bias_o.add(gradient);
-
-        Matrix who_T = Matrix.transpose(weights_ho);
-        Matrix hidden_errors = Matrix.multiply(who_T, error);
-
-        Matrix h_gradient = hidden.dsigmoid();
-        h_gradient.multiply(hidden_errors);
-        h_gradient.multiply(l_rate);
-
-        Matrix i_T = Matrix.transpose(input);
-        Matrix wih_delta = Matrix.multiply(h_gradient, i_T);
-
-        weights_ih.add(wih_delta);
-        bias_h.add(h_gradient);
-        
-
-    }
-
-    public void trainReinforcement(double [] input, int score){
-
-        // info needed: Score from last round,
-        //              Old weights (weights_ih, weights_ho)
-        //              Old Bias (bias_h, bias_o)
-        //              Input that was used
         Random random = new Random();
     
         Matrix[] weights = {weights_ih, weights_ho, bias_h, bias_o};
@@ -111,9 +88,6 @@ public class NeuralNetwork {
         
         System.out.println("Changing type: " + propertyToChange);
 
-        int row = 0;
-        int column = 0;
-
         if (propertyToChange == 0){
             row = random.nextInt(0, h);
             column = random.nextInt(0, i);
@@ -124,49 +98,66 @@ public class NeuralNetwork {
         }
         else if (propertyToChange == 2){
             row = random.nextInt(0, h);
-            column = 1;
+            column = 0;
         }
         else if (propertyToChange == 3){
             row = random.nextInt(0, o);
-            column = 1;
+            column = 0;
         }
-
-        // set the old weight = oldWeight
-        int oldRow = row;
-        int oldColumn = column;
-        double oldWeight = propertyChanged.getWeight(row, column);
 
         // create a new random weight for the new weight
         double newWeight = random.nextDouble(-1, 1);
+
+        if (score < bestScore){
+            // Revert to old weight
+            System.out.println("Bad Weight ========================================================= " + bestScore + " vs " + score);
+            oldProperty.changeWeight(oldRow, oldColumn, oldWeight);
+            
+        }
+        else{
+            bestScore = score;
+            bestBias_h = bias_h;
+            bestBias_o = bias_o;
+            bestWeights_ho = weights_ho;
+            bestWeights_ih = weights_ih;
+        }
+        System.out.println("row " + row);
+        System.out.println("Column " + column);
+        System.out.println(propertyChanged.getWeight(row, column));
+        propertyChanged.changeWeight(row, column, newWeight);
+
+        // set the old weight = oldWeight
+        //old weight before any changes happend
+        oldWeight = propertyChanged.getWeight(row, column);
+
+        oldProperty = propertyChanged;
+        oldRow = row;
+        oldColumn = column;
         propertyChanged.changeWeight(oldRow, oldColumn, newWeight);
 
-        //Play game to see how the change did. If the score got worse
-        // revert the changes and change a differnt weight
-        // If score was good keep weight and change another weight.
+        ArrayList<Matrix> returnList = new ArrayList<Matrix>();
+        returnList.add(bestWeights_ih);
+        returnList.add(bestWeights_ho);
+        returnList.add(bestBias_h);
+        returnList.add(bestBias_o);
 
-        //Play Game
-    
-
-        //If score > oldScore Then keep changes
-
-
-        //Else discaerd changes
-
-
-        //go to next
-
-
-
-
-
-
+        return returnList;
 
     }
 
-    public void fit(double [][] X , double [][] Y , int epochs){
-        for (int i = 0; i < epochs; i++){
-            int sampleN = (int)(Math.random() * X.length);
-            this.train(X[sampleN], Y[sampleN]);
-        }
+    public void setBestWeights(){
+        weights_ho = bestWeights_ho;
+        weights_ih = bestWeights_ih;
+        bias_h = bestBias_h;
+        bias_o = bestBias_o;
+    }
+
+    public void getBestWeights(){
+        System.out.println("======================================= Best Weights =================================");
+        System.out.println("Weights_ho = " + weights_ho.toArray());
+        System.out.println("Weights_ih = " + weights_ih.toArray());
+        System.out.println("Bias_o = " + bias_o.toArray());
+        System.out.println("Bias_h = " + bias_h.toArray());
+        System.out.println("======================================================================================");
     }
 }

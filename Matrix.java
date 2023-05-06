@@ -4,11 +4,11 @@ import java.util.List;
 
 public class Matrix {
 
-    double [][]data;
+    double [][] data;
     int rows, cols;
 
     public Matrix(int rows, int cols){
-        // Creates a new matrix and initializes it with values between 
+        // Creates a new matrix and initializes it with random values between 
         // 1 and -1
         data = new double [rows][cols];
         this.rows = rows;
@@ -103,7 +103,7 @@ public class Matrix {
     }
 
     public void sigmoid(){
-        // Ap[plies the sigmoid function on a matrix]
+        // Applies the sigmoid function on a matrix
         for (int i = 0; i < rows; i++){
             for (int j = 0; j < cols; j++){
                 this.data[i][j] = 1 / (1 + Math.exp(- this.data[i][j]));
@@ -145,10 +145,12 @@ public class Matrix {
     }
 
     public void changeWeight(int row, int column, double newWeight){
+        // Changes the weight of a matrix given row and column data
         this.data[row][column] = newWeight;
     }
 
     public double getWeight(int row, int column){
+        // Returns the weight of a matrix given row and column data
         return this.data[row][column];
     }
 

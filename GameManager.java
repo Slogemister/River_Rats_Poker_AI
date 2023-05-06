@@ -68,8 +68,8 @@ public class GameManager {
         int[] limits = {1, 1, 1, 2, 2};
         this.bets = limits;
         this.raiseLimit = 3;
-        //this.hands = 10 * players.length;
-        this.hands = 1;
+        this.hands = 10 * players.length;
+        
 
         gameLevelSetup();
     }

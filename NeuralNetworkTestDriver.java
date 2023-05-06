@@ -1,11 +1,6 @@
 import java.util.List;
 
-
-
-
-
-
-public class NeuralNetworkDriver {
+public class NeuralNetworkTestDriver {
     public static void main(String[] args){
         /* 
         We want our input to be 
@@ -60,7 +55,7 @@ public class NeuralNetworkDriver {
 
         List<Double> output;
 
-        nn.fit(X, Y, 50000);
+        //nn.fit(X, Y, 50000);
 
         double [][] input = {
                             {0, 0}, 
