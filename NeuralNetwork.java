@@ -1,3 +1,8 @@
+/*  Suyash Sonawane (June 21, 2020) Understanding and Implementing
+ *  Neural Networks in Java from Scratch (Version 1.0)[Source code]
+ *  https://towardsdatascience.com/understanding-and-implementing-neural-networks-in-java-from-scratch-61421bb6352c
+*/
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
