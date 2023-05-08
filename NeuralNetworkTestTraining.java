@@ -6,7 +6,7 @@ public class NeuralNetworkTestTraining {
         NeuralNetwork nn = new NeuralNetwork(10, 20, 5);
         NNAgent agent = new NNAgent(1, nn);
         
-        for (int i = 0; i < 100000; i++){
+        for (int i = 0; i < 1000; i++){
             Player[] players = new Player[6];
             //Adjust the right side of these assignments to select new agents
             //players[0] = new AgentRandomPlayer(1);

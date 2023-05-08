@@ -32,16 +32,16 @@ public class ESTHER {
          players[1] = new AgentAlwaysCall(1);
          players[2] = new AgentRandomPlayer(2);
          players[3] = new AgentAlwaysRaise(1);
-
-         // Rules Based Agent
          players[4] = new AgentAlwaysFold(1);
 
-         // Neural Network Agent
-         //players[5] = new NNAgent(1, true);
+         // Rules Based Agent
+         //players[5] = new RulesBasedAgent(1);
 
-         
+         // Neural Network Agent
+         players[5] = new NNAgent(1, true);
+
          //System.out.println("You will be player #6");
-         players[5] = new AgentHumanCommandLine();
+         //players[5] = new AgentHumanCommandLine();
 
          
         if (mode == 1) {

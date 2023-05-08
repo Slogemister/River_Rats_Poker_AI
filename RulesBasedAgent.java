@@ -96,9 +96,9 @@ public class RulesBasedAgent extends Player {
 
     @Override
     public void newHand(int hand, int[] bank) {
-        //System.out.println("Players start this round with bank totals of:");
+        System.out.println("Players start this round with bank totals of:");
         for (int x = 0; x < bank.length; x++) {
-            //System.out.println((x + 1) + " has " + bank[x]);
+            System.out.println((x + 1) + " has " + bank[x]);
         }
         lastRound = 1;
         nextIndex = 0;
@@ -116,43 +116,43 @@ public class RulesBasedAgent extends Player {
         // Match starting implementation of AgentHumanCommandLine:
         if (lastRound < currentRound) {
             ArrayList<String> lastRoundActions = data.getHandActions(lastRound);
-            //System.out.println();
+            System.out.println();
 
             for (int x = nextIndex; x < lastRoundActions.size(); x++) {
-                //System.out.println(lastRoundActions.get(x));
+                System.out.println(lastRoundActions.get(x));
             }
-            //System.out.println();
-            //System.out.println("Starting next round of betting.");
+            System.out.println();
+            System.out.println("Starting next round of betting.");
             nextIndex = 0;
             lastRound = currentRound;
         }
 
         ArrayList<String> thisRoundActions = data.getHandActions(currentRound);
         
-        //System.out.println();
+        System.out.println();
         int len = thisRoundActions.size();
 
         for (int x = nextIndex; x < thisRoundActions.size(); x++) {
-            //System.out.println(thisRoundActions.get(x));
+            System.out.println(thisRoundActions.get(x));
         }
 
         nextIndex = thisRoundActions.size() + 1;
 
-        //System.out.println();
+        System.out.println();
 
         // PRE-FLOP: (IF current round is PRE-FLOP):
         if (currentRound == 1) {
             // FIND card combination in the hand range
-            //System.out.println("Agent's pocket cards are: ");
-            //System.out.print(EstherTools.intCardToStringCard(data.getPocket()[0]) + " ");
-            //System.out.println(EstherTools.intCardToStringCard(data.getPocket()[1]) + " ");
-            //System.out.println();
+            System.out.println("Agent's pocket cards are: ");
+            System.out.print(EstherTools.intCardToStringCard(data.getPocket()[0]) + " ");
+            System.out.println(EstherTools.intCardToStringCard(data.getPocket()[1]) + " ");
+            System.out.println();
 
             String cardCombo = pocketCardsToHandCombination(
                 data.getPocket()[0], data.getPocket()[1]
             );
-            //System.out.println("Card combination from pocket cards: " + cardCombo);
-            //System.out.println();
+            System.out.println("Card combination from pocket cards: " + cardCombo);
+            System.out.println();
 
                 // FIND hand value in terms of agent's own range
             int preFlopHandValue = getPreFlopHandValue(
@@ -171,7 +171,7 @@ public class RulesBasedAgent extends Player {
             // IF current pocket cards aren't in the acceptable range
             if (preFlopHandValue == 0) {
                 // FOLD
-                //System.out.println("Agent folds " + "\n");
+                System.out.println("Agent folds " + "\n");
                 return "fold";
             }
             // If Cards are in top of range (3), raise all the time, else call.
@@ -182,11 +182,11 @@ public class RulesBasedAgent extends Player {
                     return "bet";
                 }
                 else if (data.getValidActions().contains("raise")) {
-                    //System.out.println("Agent raises " + "\n");
+                    System.out.println("Agent raises " + "\n");
                     return "raise";
                 }
                 else {
-                    //System.out.println("Agent calls" + "\n");
+                    System.out.println("Agent calls" + "\n");
                     return "call";
                 }
             }
@@ -221,7 +221,7 @@ public class RulesBasedAgent extends Player {
                         System.out.println("Agent calls" + "\n");
                         return "call";
                     } else {
-                        //System.out.println("Agent folds" + "\n");
+                        System.out.println("Agent folds" + "\n");
                         return "fold";
                     }
                 } else {
@@ -252,7 +252,7 @@ public class RulesBasedAgent extends Player {
             if (isInTopRange) {
                 // Reraise if betting limit isn't reached
                 if (data.getValidActions().contains("raise")) {
-                    //System.out.println("Agent raises" + "\n");
+                    System.out.println("Agent raises" + "\n");
                     return "raise";
                 // if first to act, bet first
                 } else if (data.getValidActions().contains("bet")) {
@@ -276,7 +276,7 @@ public class RulesBasedAgent extends Player {
                  // ELSE IF current hand is the medium-range (three-of-a-kind and two pairs):
                  if (data.getValidActions().contains("check")) {
                     // Choose to Call 
-                    //System.out.println("Agent checks " + "\n");
+                    System.out.println("Agent checks " + "\n");
                     return "check";
                 } else if (data.getValidActions().contains("call")) {
                     // If facing a bet:
@@ -287,7 +287,7 @@ public class RulesBasedAgent extends Player {
                         System.out.println("Agent calls" + "\n");
                         return "call";
                     } else {
-                        //System.out.println("Agent folds" + "\n");
+                        System.out.println("Agent folds" + "\n");
                         return "fold";
                     }
                 }
@@ -309,7 +309,7 @@ public class RulesBasedAgent extends Player {
                         System.out.println("Agent checks \n");
                         return "check";
                     } else {
-                        //System.out.println("Agent bets \n");
+                        System.out.println("Agent bets \n");
                         return "bet";
                     }
                 } else {
@@ -328,7 +328,7 @@ public class RulesBasedAgent extends Player {
                             System.out.println("Agent calls \n");
                             return "call";
                         } else {
-                            //System.out.println("Agent raises \n");
+                            System.out.println("Agent raises \n");
                             return "raise";
                         }
                     } else {
@@ -338,7 +338,7 @@ public class RulesBasedAgent extends Player {
                             System.out.println("Agent folds \n");
                             return "fold";
                         } else {
-                            //System.out.println("Agent calls \n");
+                            System.out.println("Agent calls \n");
                             return "call";
                         }
                     }

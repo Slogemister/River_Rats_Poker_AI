@@ -124,7 +124,7 @@ public class NNAgent extends Player{
 
         NNAgent agent = new NNAgent(1, nn);
         
-        int epochs = 10000;
+        int epochs = 1000;
 
         for (int i = 0; i < epochs; i++){
             Player[] players = new Player[6];
