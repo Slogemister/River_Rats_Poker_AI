@@ -23,7 +23,7 @@ Access to the github repository and a text editor capable of executing Java code
 
 ## Installation
 
-- Open github repository and clone the project to your text editor
+- Open github repository at https://github.com/Slogemister/River_Rats_Poker_AI/settings and clone the project to your text editor
 - For unit testing purposes, configure the tests around junit.jupiter
 - Go to the file named ESTHER.java and execute it to launch the poker framework of ESTHER
 
