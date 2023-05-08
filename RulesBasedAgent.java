@@ -55,13 +55,43 @@ public class RulesBasedAgent extends Player {
     private int nextIndex;
 
     private String[] topBestHandRange = {"straight flush", "four of a kind", "full house", "flush", "straight"};
-    private String[] mediumBestHandRange = {"three of a kind", "two of a kind"};
+    private String[] mediumBestHandRange = {"three of a kind", "two pair"};
     private String[] lowerBestHandRange = {"one pair", "no pair"};
+
+    private double midRangePreFlopCallPercentage = 0.5;
+    private double midRangePostFlopFoldPercentage = 0.4;
+    private double lowRangePreFlopFoldPercentage = 0.5;
+    private double lowRangePostFlopBluffPercentage = 0.1;
+    private double lowRangePostFlopNotFoldingFacingBetPercentage = 0.4;
 
     public RulesBasedAgent(int num) {
         this.num = num;
         this.lastRound = 1;
         this.nextIndex = 0;
+    }
+
+    public void setAgentPreFlopRange(int[][] newAgentPreFlopRange) {
+        this.agentPreFlopRange = newAgentPreFlopRange;
+    }
+
+    public void setMidRangePreFlopCallPercentage(double percent) {
+        this.midRangePreFlopCallPercentage = percent;
+    }
+
+    public void setLowRangePreFlopFoldPercentage(double percent) {
+        this.lowRangePreFlopFoldPercentage = percent;
+    }
+
+    public void setMidRangePostFlopFoldPercentage(double percent) {
+        this.midRangePostFlopFoldPercentage = percent;
+    }
+
+    public void setLowRangePostFlopBluffPercentage(double percent) {
+        this.lowRangePostFlopBluffPercentage = percent;
+    }
+
+    public void setLowRangePostFlopNotFoldingFacingBetPercentage(double percent) {
+        this.lowRangePostFlopNotFoldingFacingBetPercentage = percent;
     }
 
     @Override
@@ -128,8 +158,15 @@ public class RulesBasedAgent extends Player {
             int preFlopHandValue = getPreFlopHandValue(
                 data.getPocket()[0], data.getPocket()[1]
             );
-            //System.out.println("Hand strength value: " + preFlopHandValue);
-            //System.out.println();
+            System.out.println("Hand strength value: " + preFlopHandValue);
+            System.out.println();
+
+            System.out.println("The board shows");
+            for (int card : data.getBoard()) {
+                System.out.print(EstherTools.intCardToStringCard(card) + " ");
+            }
+            System.out.println(" ");
+
             
             // IF current pocket cards aren't in the acceptable range
             if (preFlopHandValue == 0) {
@@ -140,8 +177,8 @@ public class RulesBasedAgent extends Player {
             // If Cards are in top of range (3), raise all the time, else call.
             else if (preFlopHandValue == 3) {
                 // If betting limit isn't reached, raise
-                if (data.getValidActions().contains("bet")) {
-                    //System.out.println("Agent bets " + '\n');
+                if (data.getValidActions().contains("check")) {
+                    System.out.println("Agent bets " + '\n');
                     return "bet";
                 }
                 else if (data.getValidActions().contains("raise")) {
@@ -157,36 +194,31 @@ public class RulesBasedAgent extends Player {
             else if (preFlopHandValue == 2) {
                 // If no one has raised, bet
                 if (data.getValidActions().contains("bet")) {
-                    //System.out.println("Agent raises" + "\n");
+                    System.out.println("Agent bets" + "\n");
                     return "bet";
                 }
                 // Else someone has raised before the agent
                 else {
-                    if (data.getValidActions().contains("raise")) {
-                        // Randomly decide to raise bet or call
-                        // Starting weights will be a 50% bet, 50% call
-                        double raiseOrCall = Math.random();
-                        if (raiseOrCall > 0.5) {
-                            //System.out.println("Agent raises" + "\n");
-                            return "raise";
-                        } else {
-                            //System.out.println("Agent calls" + "\n");
-                            return "call";
-                        }
+                    // Randomly decide to raise bet or call
+                    // Starting weights will be a 50% bet, 50% call
+                    double raiseOrCall = Math.random();
+                    if (raiseOrCall > this.midRangePreFlopCallPercentage && data.getValidActions().contains("raise")) {
+                        System.out.println("Agent raises" + "\n");
+                        return "raise";
+                    } else {
+                        System.out.println("Agent calls" + "\n");
+                        return "call";
                     }
-                    // Betting limit reached, call bet
-                    //System.out.println("Agent checks" + "\n");
-                    return "check";
                 }
             }
             // Lower portion of range, prefer to fold, else call
             else {
                 // If player raised before agent acts, decide to call or fold
-                if (data.getValidActions().contains("raise")) {
+                if (data.getValidActions().contains("call")) {
                     double callOrFold = Math.random();
                     // Default weighting is 50% call, 50% fold
-                    if (callOrFold > 0.5) {
-                        //System.out.println("Agent calls" + "\n");
+                    if (callOrFold > this.lowRangePreFlopFoldPercentage) {
+                        System.out.println("Agent calls" + "\n");
                         return "call";
                     } else {
                         //System.out.println("Agent folds" + "\n");
@@ -194,13 +226,19 @@ public class RulesBasedAgent extends Player {
                     }
                 } else {
                     // If first to act, initially bet
-                    //System.out.println("Agent raises" + "\n");
-                    return "raise";
+                    System.out.println("Agent bets" + "\n");
+                    return "bet";
                 }
             }
         }
         // FLOP through RIVER:
         else {
+            System.out.println("The board shows");
+            for (int card : data.getBoard()) {
+                System.out.print(EstherTools.intCardToStringCard(card) + " ");
+            }
+            System.out.println(" ");
+
             // Determine the BestHand you can make with your cards
             BestHand currentBestHand = EstherTools.getBestHand(data.getPocket(), data.getBoard());
 
@@ -216,16 +254,14 @@ public class RulesBasedAgent extends Player {
                 if (data.getValidActions().contains("raise")) {
                     //System.out.println("Agent raises" + "\n");
                     return "raise";
+                // if first to act, bet first
+                } else if (data.getValidActions().contains("bet")) {
+                    System.out.println("Agent bets" + "\n");
+                    return "bet";
                 } else {
-                    // if first to act, bet first
-                    if (data.getValidActions().contains("bet")) {
-                        //System.out.println("Agent bets" + "\n");
-                        return "bet";
-                    } else {
-                        // betting limit reached, call
-                        //System.out.println("Agent calls" + "\n");
-                        return "call";
-                    }
+                    // betting limit reached, call
+                    System.out.println("Agent calls" + "\n");
+                    return "call";
                 }
                 // Do this through the entire round (even if someone else raises after you)
             }
@@ -242,13 +278,13 @@ public class RulesBasedAgent extends Player {
                     // Choose to Call 
                     //System.out.println("Agent checks " + "\n");
                     return "check";
-                } else {
+                } else if (data.getValidActions().contains("call")) {
                     // If facing a bet:
                     // Choose to call (bluff-catch) or fold
                     // Default values for mid-range, call 60%, fold 40%
                     double callOrFold = Math.random();
-                    if (callOrFold > 0.4) {
-                        //System.out.println("Agent calls" + "\n");
+                    if (callOrFold > this.midRangePostFlopFoldPercentage) {
+                        System.out.println("Agent calls" + "\n");
                         return "call";
                     } else {
                         //System.out.println("Agent folds" + "\n");
@@ -269,8 +305,8 @@ public class RulesBasedAgent extends Player {
                     // If no one has bet, prefer to call but sometimes raise
                     // Default values will be call 90%, bet 10%
                     double callOrBet = Math.random();
-                    if (callOrBet > 0.1) {
-                        //System.out.println("Agent checks \n");
+                    if (callOrBet > this.lowRangePostFlopBluffPercentage) {
+                        System.out.println("Agent checks \n");
                         return "check";
                     } else {
                         //System.out.println("Agent bets \n");
@@ -280,14 +316,16 @@ public class RulesBasedAgent extends Player {
                     // If facing a bet, prefer to fold, 
                     // but sometimes call and rarely re-raise (if able)
                     double foldCallOrRaise = Math.random();
-                    if (data.getValidActions().contains("raise")) {
+                    if (data.getValidActions().contains("call")) {
                         // If raising is possible, default values are
                         // 60% fold, 30% call, 10% raise
-                        if (foldCallOrRaise > 0.4) {
-                            //System.out.println("Agent folds \n");
+                        if (foldCallOrRaise > this.lowRangePostFlopNotFoldingFacingBetPercentage) {
+                            System.out.println("Agent folds \n");
                             return "fold";
-                        } else if (foldCallOrRaise <= 0.4 && foldCallOrRaise > 0.1) {
-                            //System.out.println("Agent calls \n");
+                        } else if (
+                            foldCallOrRaise <= this.lowRangePostFlopNotFoldingFacingBetPercentage && 
+                            foldCallOrRaise > this.lowRangePostFlopBluffPercentage) {
+                            System.out.println("Agent calls \n");
                             return "call";
                         } else {
                             //System.out.println("Agent raises \n");
@@ -296,8 +334,8 @@ public class RulesBasedAgent extends Player {
                     } else {
                         // Betting limit reached, default values are
                         // 60% fold, 40% call
-                        if (foldCallOrRaise > 0.4) {
-                            //System.out.println("Agent folds \n");
+                        if (foldCallOrRaise > this.lowRangePostFlopNotFoldingFacingBetPercentage) {
+                            System.out.println("Agent folds \n");
                             return "fold";
                         } else {
                             //System.out.println("Agent calls \n");
